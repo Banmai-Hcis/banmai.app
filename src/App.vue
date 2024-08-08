@@ -1,8 +1,9 @@
 <script setup>
+  import NavicationBar from './components/NavicationBar.vue';
 </script>
 
 <template>
-  <div class="flex flex-col p-10 gap-5">
+  <div class="flex flex-col h-screen p-10 gap-5">
 
     <h1>Hello App!</h1>
   
@@ -18,8 +19,10 @@
     <main>
       <RouterView />
     </main>
-  
   </div>
+
+  <NavicationBar />
+
 </template>
 
 <style scoped></style>

@@ -4,9 +4,9 @@
   }
 </script>
 <template lang="">
-    
-  <!-- Container -->
-  <div class="flex items-end justify-center min-h-screen">
+  <div class="fixed w-full bottom-0">
+
+    <div class="flex items-end justify-center">
     <div class="flex flex-col w-full">
       <!-- Navigation Bar -->
       <div class="px-5 pt-3 bg-white shadow-lg rounded-2xl rounded-bl-none rounded-br-none">
@@ -115,7 +115,9 @@
       </div>
     </div>
   </div>
-      
+
+  </div>
+  <!-- Container -->
 </template>
 
 

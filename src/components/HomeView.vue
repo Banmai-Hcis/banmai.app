@@ -56,40 +56,60 @@
 
 <template>
   <h2>HomeView</h2>
-  <button @click="goToAbout">Go to About</button>
+  <button class="btn btn-outline" @click="goToAbout">Go to About</button>
 
   <br />
 
   <div v-if="loading">
-    <p class="loading loading-infinity loading-lg"></p>
+    <div class="pt-5">
+      <div class="skeleton h-16 w-full mt-2"></div>
+      <div class="skeleton h-16 w-full mt-2"></div>
+      <div class="skeleton h-16 w-full mt-2"></div>
+      <div class="skeleton h-16 w-full mt-2"></div>
+    </div>
   </div>
+  
   <div v-else>
+
+    <label class="form-control w-full pt-5">
+      <div class="label">
+        <span class="label-text"> Search</span>
+        <span class="label-text-alt text-error">*</span>
+      </div>
+      <input 
+        type="text" 
+        class="input input-bordered w-full bg-white" 
+        maxlength="20" 
+        placeholder="Type search here !"
+        v-model.trim="search" />
+    </label>
 
     <div class="pt-5">
       <div v-for="item in info.slice(previousData, nextData)">
-        <div tabindex="0" class="collapse collapse-arrow border-base-300 bg-base-200 border mt-2">
-          <div class="collapse-title font-medium">{{ item.first_name }} {{ item.last_name }}</div>
-            <div class="collapse-content">
-              <p>Gender : {{ item.gender }}</p>
-              <p>Email : {{ item.email }}</p>
-              <button class="btn  btn-sm btn-success mt-4">Screen</button>
+        <div tabindex="0" class="collapse collapse-arrow border-base-200 bg-white border mt-2">
+          <div class="collapse-title text-lg font-medium">{{ item.first_name }} {{ item.last_name }}</div>
+          <div class="collapse-content">
+                <p>Gender : {{ item.gender }}</p>
+                <p>Email : {{ item.email }}</p>
+              <button class="btn btn-success mt-4 w-32">Screen</button>
             </div>
-          </div>
         </div>
       </div>
+    </div>
 
-      <div class="flex flex-row justify-center py-5">
-        <button v-if="previousData <= 0" class="btn btn-circle" @click="btnPrevious" disabled> ❮ </button>
-        <button v-else class="btn btn-circle" @click="btnPrevious"> ❮ </button>
-        
-        <button v-if="nextData >= dataTotal" class="btn btn-circle" @click="btnNext" disabled> ❯ </button>
-        <button v-else class="btn btn-circle" @click="btnNext"> ❯ </button>
-      </div>
+    <div class="flex flex-row justify-center space-x-5 py-5">
+      <button v-if="previousData <= 0" class="btn btn-circle bg-base-100 text-primary" @click="btnPrevious" disabled> ❮ </button>
+      <button v-else class="btn btn-circle bg-base-100 text-primary" @click="btnPrevious"> ❮ </button>
+      
+      <button v-if="nextData >= dataTotal" class="btn btn-circle bg-base-100 text-primary" @click="btnNext" disabled> ❯ </button>
+      <button v-else class="btn btn-circle bg-base-100 text-primary" @click="btnNext"> ❯ </button>
+    </div>
 
-      <div class="flex flex-col text-center pb-5">
-        <p>แสดงข้อมูลที่ {{ previousData + 1 }} ถึง {{ nextData }} </p>
-        <p>จำนวนข้อมูลทั้งหมด {{ dataTotal }} รายการ</p>
-      </div>
+    <div class="flex flex-col text-center pb-5">
+      <p>แสดงข้อมูลที่ {{ previousData + 1 }} ถึง {{ nextData }} </p>
+      <p>จำนวนข้อมูลทั้งหมด {{ dataTotal }} รายการ</p>
+    </div>
     <!-- {{ info }} -->
   </div>  
+
 </template>

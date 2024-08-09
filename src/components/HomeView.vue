@@ -4,27 +4,34 @@
   export default {
     data () {
       return {
-        info: null,
+        searchData: '',
+        searchDataTotal: null,
         loading: true,
         // list
+        responesData: null,
         dataTotal: null,
         previousData: 0,
         nextData:  5,
         limitData: 5,
       }
     },
-     mounted () {
-       axios
-         .get('https://sheetdb.io/api/v1/zlo1oe99msgjx')
-         .then(response => (
-              this.info = response.data, 
-              this.dataTotal = response.data.length
-          ))
-         .catch(error => {
-           console.log(error)
-         })
-         .finally(() => this.loading = false)
-     },
+    mounted () {
+      axios
+        .get('https://sheetdb.io/api/v1/u1g9gpet2o9xe')
+        .then(response => (
+            this.responesData = response.data, 
+            this.dataTotal = response.data.length
+        ))
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => this.loading = false)
+    },
+    computed: {
+      searchDataModel() {
+        return this.responesData.filter(data => data.name.includes(this.searchData))
+      }
+    },
     methods: {
       goToAbout() {
         this.$router.push('/about')
@@ -77,38 +84,53 @@
         <span class="label-text-alt text-error">*</span>
       </div>
       <input 
-        type="text" 
+        type="search"
+        v-model="searchData"
         class="input input-bordered w-full bg-white" 
         maxlength="20" 
-        placeholder="Type search here !"
+        placeholder="ค้นหาด้วยชื่อ"
     </label>
 
     <div class="pt-5">
-      <div v-for="item in info.slice(previousData, nextData)">
-        <div tabindex="0" class="collapse collapse-arrow border-base-200 bg-white border mt-2">
-          <div class="collapse-title text-lg text-neutral-600 font-medium">{{ item.first_name }} {{ item.last_name }}</div>
-          <div class="collapse-content">
-                <p>Gender : {{ item.gender }}</p>
-                <p>Email : {{ item.email }}</p>
-              <button class="btn btn-success mt-4 w-32">Screen</button>
+      <div v-for="item in searchDataModel.slice(previousData, nextData)">
+        <div tabindex="0" class="collapse collapse-arrow border-base-200 bg-white border shadow-md mt-2">
+          <div class="collapse-title text-lg text-neutral-600 font-medium">{{ item.name }}</div>
+            <div class="collapse-content">
+                <p>ที่อยู่ : {{ item.hno }} หมู่ {{ item.moo }} {{ item.moo_name }}</p>
+                <p>วันเกิด : {{ item.birth }}</p>
+              <button class="btn btn-success shadow-sm mt-4 w-32">คัดกรอง</button>
             </div>
         </div>
       </div>
     </div>
 
-    <div class="flex flex-row justify-center space-x-5 py-5">
-      <button v-if="previousData <= 0" class="btn btn-circle bg-base-100 text-primary" @click="btnPrevious" disabled> ❮ </button>
-      <button v-else class="btn btn-circle bg-base-100 text-primary" @click="btnPrevious"> ❮ </button>
+    <div v-if="searchData == ''">
+      <div class="flex flex-row justify-center space-x-5 py-5">
+        <button v-if="previousData <= 0" class="btn btn-circle bg-base-100 text-primary" @click="btnPrevious" disabled> ❮ </button>
+        <button v-else class="btn btn-circle bg-base-100 text-primary" @click="btnPrevious"> ❮ </button>
+        
+        <button v-if="nextData >= dataTotal" class="btn btn-circle bg-base-100 text-primary" @click="btnNext" disabled> ❯ </button>
+        <button v-else class="btn btn-circle bg-base-100 text-primary" @click="btnNext"> ❯ </button>
+      </div>
       
-      <button v-if="nextData >= dataTotal" class="btn btn-circle bg-base-100 text-primary" @click="btnNext" disabled> ❯ </button>
-      <button v-else class="btn btn-circle bg-base-100 text-primary" @click="btnNext"> ❯ </button>
+      <div class="flex flex-col text-center pb-5">
+        <p>แสดงข้อมูลที่ {{ previousData + 1 }} ถึง {{ nextData }} </p>
+        <p>จำนวนข้อมูลทั้งหมด {{ dataTotal }} รายการ</p>
+      </div>
     </div>
 
-    <div class="flex flex-col text-center pb-5">
-      <p>แสดงข้อมูลที่ {{ previousData + 1 }} ถึง {{ nextData }} </p>
-      <p>จำนวนข้อมูลทั้งหมด {{ dataTotal }} รายการ</p>
+    <div v-else-if="searchDataModel.length == 0">
+      <div class="flex flex-col text-center py-5">
+        <p>ไม่พบข้อมูลที่ค้นหา</p>
+      </div>
     </div>
-    <!-- {{ info }} -->
+    
+    <div v-else>
+      <div class="flex flex-col text-center py-5">
+        <p>พบข้อมูล {{ searchDataModel.length }} รายการ</p>
+      </div>
+    </div>
+    <!-- {{ responesData }} -->
   </div>  
 
 </template>

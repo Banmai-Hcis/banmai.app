@@ -68,7 +68,7 @@
     <div class="pt-5">
       <div v-for="item in info.slice(previousData, nextData)">
         <div tabindex="0" class="collapse collapse-arrow border-base-300 bg-base-200 border mt-2">
-          <div class="collapse-title text-xl font-medium">{{ item.first_name }} {{ item.last_name }}</div>
+          <div class="collapse-title font-medium">{{ item.first_name }} {{ item.last_name }}</div>
             <div class="collapse-content">
               <p>Gender : {{ item.gender }}</p>
               <p>Email : {{ item.email }}</p>

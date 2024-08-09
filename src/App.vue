@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="flex flex-col h-screen p-10 gap-5">
+  <div class="flex flex-col p-10 gap-5 mb-20">
 
     <h1>Hello App!</h1>
   

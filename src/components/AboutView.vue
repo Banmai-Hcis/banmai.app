@@ -16,7 +16,7 @@ const search = computed({
 </script>
 
 <template>
-  <h2>AboutView</h2>
+  <h2 class="text-lg font-bold">About View</h2>
   <label class="form-control w-full ">
     <div class="label">
       <span class="label-text"> Search</span>

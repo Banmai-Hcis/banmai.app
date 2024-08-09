@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: Sarabun;
+  src: url('../src/assets/fonts/Sarabun/Sarabun-Light.ttf');
+}
+
+#app {
+  font-family: Sarabun, sans-serif;
+  font-weight: 400;
+}
 nav, main {
     /* border: 2px solid #000; */
     margin-bottom: 10px;

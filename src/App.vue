@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="flex flex-col p-3 gap-5 mb-20 text-primary bg-base-100/40">
+  <div class="flex flex-col h-screen bg-base-300/10 overflow-y-scroll p-3 gap-5">
 
     <h1 class="text-4xl font-bold">Hello App!</h1>
   
@@ -16,7 +16,7 @@
       <RouterLink class="btn btn-error" to="/about">Go to About</RouterLink>
     </nav>
   
-    <main>
+    <main class="mb-12">
       <RouterView />
     </main>
   </div>

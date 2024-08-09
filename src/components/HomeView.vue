@@ -55,7 +55,7 @@
 </script>
 
 <template>
-  <h2>HomeView</h2>
+  <h2 class="text-lg font-bold">Home View</h2>
   <button class="btn btn-outline" @click="goToAbout">Go to About</button>
 
   <br />
@@ -81,13 +81,12 @@
         class="input input-bordered w-full bg-white" 
         maxlength="20" 
         placeholder="Type search here !"
-        v-model.trim="search" />
     </label>
 
     <div class="pt-5">
       <div v-for="item in info.slice(previousData, nextData)">
         <div tabindex="0" class="collapse collapse-arrow border-base-200 bg-white border mt-2">
-          <div class="collapse-title text-lg font-medium">{{ item.first_name }} {{ item.last_name }}</div>
+          <div class="collapse-title text-lg text-neutral-600 font-medium">{{ item.first_name }} {{ item.last_name }}</div>
           <div class="collapse-content">
                 <p>Gender : {{ item.gender }}</p>
                 <p>Email : {{ item.email }}</p>

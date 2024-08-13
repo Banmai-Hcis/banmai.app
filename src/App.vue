@@ -3,25 +3,25 @@
 </script>
 
 <template>
-  <div class="flex flex-col h-screen bg-base-300/10 overflow-y-scroll p-3 gap-5">
+  <div class="h-screen text-neutral">
 
-    <h1 class="text-4xl font-bold">Hello App!</h1>
+    <!-- <h1 class="text-4xl font-bold">Banmai App</h1> -->
   
-    <p>
+    <!-- <p>
       <strong>Current route path:</strong> {{ $route.fullPath }}
     </p>
   
     <nav>
       <RouterLink class="btn btn-primary" to="/">Go to Home</RouterLink>
       <RouterLink class="btn btn-error" to="/about">Go to About</RouterLink>
-    </nav>
+    </nav> -->
   
-    <main class="mb-12">
+    <main>
       <RouterView />
     </main>
   </div>
 
-  <NavicationBar />
+  <!-- <NavicationBar /> -->
 
 </template>
 

@@ -21,7 +21,7 @@
                 
                 <!-- Text -->
                 <span class="text-xs mb-1 transition-all duration-200">
-                  Home
+                  หน้าแรก
                 </span>
                 
                 <!-- Focus Dot -->
@@ -41,7 +41,7 @@
                 
                 <!-- Text -->
                 <span class="text-xs mb-1 transition-all duration-200">
-                  Explore
+                  คัดกรอง
                 </span>
                 
                 <!-- Focus Dot -->
@@ -101,7 +101,7 @@
                 
                 <!-- Text -->
                 <span class="text-xs mb-1 transition-all duration-200">
-                  Account
+                  ผู้ใช้
                 </span>
                 
                 <!-- Focus Dot -->

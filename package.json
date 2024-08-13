@@ -12,6 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@kalimahapps/vue-icons": "^1.7.1",
     "axios": "^1.7.3",
     "vue": "^3.4.35",
     "vue-axios": "^3.5.2",

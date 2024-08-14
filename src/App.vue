@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="h-screen text-neutral">
+  <div class="h-screen text-neutral bg-base-200/30">
 
     <!-- <h1 class="text-4xl font-bold">Banmai App</h1> -->
   

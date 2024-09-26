@@ -1,12 +1,25 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createMemoryHistory, createRouter  } from 'vue-router'
 
-import HomeView from './components/HomeView.vue'
-import AboutView from './components/AboutView.vue'
-import NCD_List from './components/NCD_List.vue'
+import Signin from './components/Signin.vue'
+import ScreenList from './components/ScreenList.vue'
+import ScreenOne from './components/ScreenStepOne.vue'
 
 const routes = [
-  { path: '/', component: NCD_List },
-  { path: '/about', component: AboutView },
+  { 
+    path: '/', 
+    name:Signin, 
+    component: ScreenOne 
+  },
+  { 
+    path: '/screen_list', 
+    name:ScreenList, 
+    component: ScreenList 
+  },
+  { 
+    path: '/screen_one', 
+    name:ScreenOne, 
+    component: ScreenOne 
+  },
 ]
 
 const router = createRouter({

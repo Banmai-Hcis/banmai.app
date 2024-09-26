@@ -16,10 +16,14 @@
     "axios": "^1.7.3",
     "vue": "^3.4.35",
     "vue-axios": "^3.5.2",
+    "vue-cookies": "^1.8.4",
     "vue-router": "^4.4.3",
-    "vue-sweetalert2": "^5.0.11"
+    "vue-signature": "^2.6.0",
+    "vue-sweetalert2": "^5.0.11",
+    "vue3-signature": "^0.2.4"
   },
   "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "@vitejs/plugin-vue": "^5.1.2",
     "autoprefixer": "^10.4.20",
     "daisyui": "^4.12.10",

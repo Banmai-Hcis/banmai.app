@@ -8,6 +8,11 @@
 }
 
 @font-face {
+  font-family: Sarabun-Bold;
+  src: url('../src/assets/fonts/Sarabun/Sarabun-Bold.ttf');
+}
+
+@font-face {
   font-family: Prompt;
   src: url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 }
@@ -21,11 +26,16 @@ body {
 
 #app {
   font-family: "Sarabun", sans-serif;
-  font-weight: 400;
+  font-weight: 500;
   font-style: normal;
 }
 
-*:focus {
-  outline-width: 0px !important;
-  outline-offset: 0px !important;
+.btn, .font-bold {
+  font-family: "Sarabun-Bold", sans-serif !important;
+  font-weight: 500;
+  font-style: normal;
+}
+
+* {
+  touch-action: manipulation;
 }

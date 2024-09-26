@@ -1,9 +1,8 @@
 <script setup>
-  import NavicationBar from './components/NavicationBar.vue';
 </script>
 
 <template>
-  <div class="h-screen text-neutral bg-base-200/30">
+  <div class="h-screen text-neutral bg-slate-50">
 
     <!-- <h1 class="text-4xl font-bold">Banmai App</h1> -->
   
@@ -20,8 +19,6 @@
       <RouterView />
     </main>
   </div>
-
-  <!-- <NavicationBar /> -->
 
 </template>
 

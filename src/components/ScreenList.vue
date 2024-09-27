@@ -113,6 +113,7 @@
               .then(response => {
                 sendCount++
                 if (sendCount == modImgLength){
+                    window.scrollTo(0, 0);
                     this.$router.push('/screen_one')
                   }
               })

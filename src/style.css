@@ -30,12 +30,27 @@ body {
   font-style: normal;
 }
 
+* {
+  touch-action: manipulation;
+}
+
 .btn, .font-bold {
   font-family: "Sarabun-Bold", sans-serif !important;
   font-weight: 500;
   font-style: normal;
 }
 
-* {
-  touch-action: manipulation;
+.menu li > *:not(ul, .menu-title, details, .btn):active, .menu li > *:not(ul, .menu-title, details, .btn).active, .menu li > details > summary:active {
+  --tw-bg-opacity: 1;
+  background-color: #fff !important;
+  --tw-text-opacity: 1;
+  color: rgb(100 116 139 / var(--tw-text-opacity)) !important;
 }
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+

@@ -1,25 +1,16 @@
 <script setup>
-  import { RouterLink } from 'vue-router';
-
   import { FaChevronLeft } from '@kalimahapps/vue-icons';
-  import { FaPencil } from '@kalimahapps/vue-icons';
   import { FaWandMagicSparkles } from '@kalimahapps/vue-icons';
-
   import { FaCircleChevronLeft } from '@kalimahapps/vue-icons';
   import { FaCircleChevronRight } from '@kalimahapps/vue-icons';
-
-  import { BsExclamationCircle } from '@kalimahapps/vue-icons';
   import { FaRightFromBracket } from '@kalimahapps/vue-icons';
   import { FaXmark } from '@kalimahapps/vue-icons';
-
   import { FaFloppyDisk } from '@kalimahapps/vue-icons';
   import { FaFileSignature } from '@kalimahapps/vue-icons';
   import { FaFilePen } from '@kalimahapps/vue-icons';
   import { FaReply } from '@kalimahapps/vue-icons';
   import { FaArrowRotateRight } from '@kalimahapps/vue-icons';
-
   import { BsExclamationTriangleFill } from '@kalimahapps/vue-icons';
-  import { FaRegImage } from '@kalimahapps/vue-icons';
 </script>
 
 <script>
@@ -48,6 +39,7 @@
         personName: '',
         personAge: '',
         personPID: '',
+        personGender: '',
         // vueSignature
         signatureStatus: 0,
         signatureError: 0,
@@ -109,7 +101,7 @@
           for (let i = 0; i <= modImgLength; i++) {
             let signature_image = svg.slice(minImgLength, maxImgLength);
               var sheet = 'https://script.google.com/macros/s/AKfycbwwq431WJ0fiogdpzmvqJXZeVOXLe7xb_KgwYLwJP1-dBn8UNASGCsXH77eKjt9njg/exec';
-              axios.get(sheet, { params: { action: 'update', pid: '195', data:`{"signature_image`+ i +`":"` + signature_image + `"}` }}, { headers: { 'Access-Control-Allow-Origin':'*' ,'Content-Type': 'application/json' }, mode: 'no-cors'})
+              axios.get(sheet, { params: { action: 'update', pid: this.personPID, data:`{"signature_image`+ i +`":"` + signature_image + `"}` }}, { headers: { 'Access-Control-Allow-Origin':'*' ,'Content-Type': 'application/json' }, mode: 'no-cors'})
               .then(response => {
                 sendCount++
                 if (sendCount == modImgLength){
@@ -147,7 +139,10 @@
       btnScreen(e) {
         this.personName = e.target.getAttribute('data-personname');
         this.personAge = e.target.getAttribute('data-personage'); 
-        this.personPID = e.target.getAttribute('data-pid');
+        this.personPID = e.target.getAttribute('data-personpid');
+        this.personGender = e.target.getAttribute('data-persongender');
+        this.$cookies.set('personData', {personName: this.personName, personAge: this.personAge, personPID: this.personPID, personGender: this.personGender}, '1d');
+        // console.log(this.$cookies.get('personData').personAge);
       },
       goToScreen() {
         this.signatureStatus = 1;
@@ -230,7 +225,7 @@
           :waterMark="waterMark"
         ></vueSignature>
           <div class="w-full flex flex-row justify-center gap-3 mt-5 mb-4">
-            <button class="btn btn-success text-slate-700 rounded-xl shadow px-6" @click="save"><FaFloppyDisk class="mt-0.5"/>บันทึก</button>
+            <button class="btn btn-success text-green-900 rounded-xl shadow px-6" @click="save"><FaFloppyDisk class="mt-0.5"/>บันทึก</button>
             <button class="btn btn-accent rounded-xl shadow" @click="clear"><FaWandMagicSparkles class="mt-0.5"/>เขียนใหม่</button>
         </div>
         <div class="w-full px-3 mb-5">
@@ -241,9 +236,9 @@
 
       <div v-else-if="signatureStatus == 2">
         <h3 class="text-lg text-center font-bold text-slate-600 my-4">บันทึกภาพ</h3>
-        <h3 class="text-center text-slate-600 mt-4 animate-pulse">กำลังแปลงข้อมูลเป็นไฟล์ภาพ ...</h3>
+        <h3 class="text-center text-slate-600 mt-4 animate-pulse">กำลังแปลงไฟล์ภาพเป็นข้อมูลเข้ารหัส ...</h3>
           <div class="flex justify-center">
-            <img class="image-full p-6 px-2 mb-2" src="../assets/images/loadImage.svg">
+            <img class="image-full p-6 px-2 mb-2 animate-pulse" src="../assets/images/loadImage.svg">
           </div>
         <div class="mb-4 px-3">
           <button v-if="processStep == 1" class="btn w-full btn-accent rounded-xl animate-pulse shadow mb-3"><FaArrowRotateRight class="mt-0.5 animate-spin"/>กรุณารอสักครู่ ...</button>
@@ -262,7 +257,7 @@
         <p class="text-center"> อายุ : {{ personAge }} </p>
         <div class="flex flex-row justify-center w-full">
           <div class="modal-action mb-3">
-            <button class="btn btn-success text-slate-700 rounded-xl px-6" @click="goToScreen()"><FaFileSignature class="mt-0.5"/>เริ่มคัดกรอง</button>
+            <button class="btn btn-success text-green-900 rounded-xl px-6" @click="goToScreen()"><FaFileSignature class="mt-0.5"/>เริ่มคัดกรอง</button>
             <form method="dialog" class="space-x-2 mb-2">
               <button class="btn btn-secondary btn-outline rounded-xl"><FaXmark class="mt-0.5"/>ยกเลิก</button>
             </form>
@@ -349,15 +344,16 @@
                         <li>
                           <h2 class="font-bold text-slate-500 pt-0">ข้อมูลส่วนตัว</h2>
                           <ul>
-                            <li class=""><p class="flex flex-row items-center disabled">อายุ : {{ item.age }}</p></li>
+                            <li class=""><p class="flex flex-row items-center disabled">อายุ : {{ item.age }} / {{ item.pid }}</p></li>
                             <li class=""><p class="flex flex-row items-center disabled">ที่อยู่ : {{ item.messengeraddr }}</p></li>
                             <li class=""><p class="flex flex-row items-center">เบอร์โทร : {{ item.messengertel }} ( {{ item.patientrelate }} )</p></li>
                           </ul>
                           <li class="w-full flex flex-row justify-center mt-2 ps-5">
-                            <button class="btn btn-wide btn-success text-slate-700 rounded-3xl item-center shadow" 
+                            <button class="btn btn-wide btn-success text-green-900 rounded-3xl item-center shadow" 
                               :data-personName="item.name"
                               :data-personAge="item.age"
-                              :date-pid="item.id"
+                              :data-personPid="item.pid"
+                              :data-personGender="item.gender"
                               @click="btnScreen($event)"
                               onclick="my_modal_screen.showModal()"><FaFilePen class="mt-0.5"/>คัดกรอง
                             </button>
@@ -386,10 +382,11 @@
                             <li class=""><p class="flex flex-row items-center">เบอร์โทร : {{ item.messengertel }} ( {{ item.patientrelate }} )</p></li>
                           </ul>
                           <li class="w-full flex flex-row justify-center mt-2 ps-5">
-                            <button class="btn btn-wide btn-success text-slate-700 rounded-3xl item-center shadow" 
+                            <button class="btn btn-wide btn-success text-green-900 rounded-3xl item-center shadow" 
                               :data-personName="item.name"
                               :data-personAge="item.age"
-                              :date-pid="item.id"
+                              :data-personPid="item.pid"
+                              :data-personGender="item.gender"
                               @click="btnScreen($event)"
                               onclick="my_modal_screen.showModal()"><FaFilePen class="mt-0.5"/>คัดกรอง
                             </button>

@@ -5,27 +5,39 @@
 
   // icon
   import { FaChevronLeft } from '@kalimahapps/vue-icons';
+  import { FaXmark } from '@kalimahapps/vue-icons';
+  import { FaRegPaste } from '@kalimahapps/vue-icons';
 
 </script>
 
 <script>
+  import axios from 'axios';
+
   export default {
     data() {
       return {
-        title_name: 'ประเมินปัจจัยเสี่ยง',
-        cvdSliderAgeValue : ref(40),
-        cvdSliderBpTopValue : ref(110),
-        cvdSliderWaistValue : ref(32),
-        cvdSliderHightValue : ref(160),
-        cvdGender: false,
-        cvdSmoke: false,
-        cvdDm: false,
-        cvdBtnTran: 0,
-        sc1: ref(''),
-        sc2: ref(''),
-        sc3: ref(''),
-        sc4: ref(''),
-        sc5: ref(''),
+        title_name: 'ตรวจสุขภาพทั่วไป',
+        // data inherited
+        inherPID: this.$cookies.get('personData').personPID,
+        inherGender: this.$cookies.get('personData').personGender,
+        inherAge: this.$cookies.get('personData').personAge,
+        inherBMI: 0,
+        // data form input
+        formWeight: "",
+        formHight: "",
+        formBpTop: "",
+        formBpDown: "",
+        formWaist: "",
+        formBloodSugar: "",
+        // data process
+        interpretation: 1,
+        // error check
+        formWeightError: 0,
+        formHightError: 0,
+        formBpTopError: 0,
+        formBpDownError: 0,
+        formWaistError: 0,
+        formBloodSugarError: 0,
       }
     },
     methods: {
@@ -35,151 +47,55 @@
     
     },
     methods: {
-      resultsCVD() {
+      btnInterpretation() {
+        // set default
+        this.formWeightError = 0; this.formHightError = 0; this.formBpTopError = 0; this.formBpDownError = 0; this.formWaistError = 0; this.formBloodSugarError = 0;
+        // check error
+        if (this.formWeight == "") { this.formWeightError = 1 }
+        if (this.formHight == "") { this.formHightError = 1 }
+        if (this.formWaist == "") { this.formWaistError = 1 }
+        if (this.formBpTop == "") { this.formBpTopError = 1 }
+        if (this.formBpDown == "") { this.formBpDownError = 1 }
+        if ( this.inherAge >= 35) {
+          if (this.formBloodSugar == "") { this.formBloodSugarError = 1 }
+        } else {
+          this.formBloodSugar = 0;
+        }
+
+        if (this.formWeightError != 1 && this.formHightError != 1 && this.formWaistError != 1 && this.formBpTopError != 1 && this.formBpDownError != 1 && this.formBloodSugarError != 1 ) {
+          var bmiCal = this.formWeight / ( ( this.formHight / 100 ) ** 2 );
+            this.inherBMI = bmiCal.toFixed(2);
+            
+            this.$cookies.set('personScreen', {
+              personWeight: this.personWeight,
+              personHight: this.personHight,
+              personBMI: this.inherBMI,
+              personBpTop: this.personBpTop,
+              personBpDown: this.personBpDown,
+              personWaist: this.personWaist,
+              personBloodSugar: this.personBloodSugar,
+            }, '1d');
+
+            var dataPersonScreen = `
+                   {"weight":` + this.formWeight + `,` 
+                  +`"height":` + this.formHight + `,` 
+                  +`"waistline":` + this.formWaist + `,`
+                  +`"bp_top":` + this.formBpTop + `,` 
+                  +`"bp_down":` + this.formBpDown + `,` 
+                  +`"bmi":` + this.inherBMI + `,`  
+                  +`"blood_sugar":`+ this.formBloodSugar 
+                  +`}`;
+            
+            var sheet = 'https://script.google.com/macros/s/AKfycbwwq431WJ0fiogdpzmvqJXZeVOXLe7xb_KgwYLwJP1-dBn8UNASGCsXH77eKjt9njg/exec';
+            axios.get(sheet, { params: { action: 'update', pid: this.personPID, data: dataPersonScreen }}, { headers: { 'Access-Control-Allow-Origin':'*' ,'Content-Type': 'application/json' }, mode: 'no-cors'})
+            .then(response => {
+            })
+            .catch(error => { 
+              this.interpretation = 1;
+            })
+          this.interpretation = 2;
+        }
         window.scrollTo(0, 0);
-        this.cvdBtnTran = 1;
-        var tcAge = this.cvdSliderAgeValue;
-        var tcSmoke = "";
-          if (this.cvdSmoke == false) {
-            tcSmoke = 0;
-          } else {
-            tcSmoke = 1;
-          }
-        var tcDM = this.cvdDm;
-          if (this.cvdDm == false) {
-            tcDM = 0;
-          } else {
-            tcDM = 1;
-          }
-        var tcSbp = this.cvdSliderBpTopValue;
-        var tcSex = "";
-          if (this.cvdGender == false) {
-            tcSex = 0;
-          } else {
-            tcSex = 1;
-          }
-        var tcTC = "";
-        var tcLdl = "";
-        var tcHdl = "";
-        var tcWhr = "";
-        var tcWc = this.cvdSliderWaistValue;
-        var tcHeight = this.cvdSliderHightValue;
-
-        var tc = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);    // age, smoke, dm, sbp, sex, tc, ldl, hdl, whr, wc, height
-        if (tcAge != '') { 
-          tc[0] = parseInt(tcAge) 
-        };
-          tc[1] = parseInt(tcSmoke);
-          tc[2] = parseInt(tcDM);
-        if (tcSbp != '') {
-          tc[3] = parseInt(tcSbp) 
-        };
-          tc[4] = parseInt(tcSex);
-        if (tcTC != '') {
-          tc[5] = parseInt(tcTC) 
-        };
-        //if ($("#ldl").val() != '') { tc[6] = parseInt($("#ldl").val()) };     //Cancle 2021-04-23
-        //if ($("#hdl").val() != '') { tc[7] = parseInt($("#hdl").val()) };     //Cancle 2021-04-23
-        if (tcWc != '') { 
-          tc[9] = parseInt(parseFloat(tcWc) * 2.5)  // Convert inch to cm
-        };   
-        if (tcHeight != '') { 
-          tc[10] = parseInt(tcHeight) 
-        };
-        if (tc[9] > 0 && tc[10] > 0) { 
-          tc[8] = tc[9] / tc[10] 
-        };
-
-        console.log(tc);
-        
-        //FORMULAR
-        var sum_risk = new Array();
-            sum_risk = TASCVDformular(tc[0], tc[1], tc[2], tc[3], tc[4], tc[5], tc[6], tc[7], tc[8], tc[9]);
-        //Display
-        if (sum_risk[1] > 0) {
-              var tt_risk = (sum_risk[1] / sum_risk[3]).toFixed(1);
-              //******* Update 2021-04-23
-              if (sum_risk[1] <= 0.3) {
-                  this.sc2 = (sum_risk[1] * 100).toFixed(2);
-              } else {
-                  this.sc2 = 'มากกว่า 30';
-              };
-              if (tt_risk > 1.1) {
-                  this.sc1 = 'ซึ่งระดับความเสี่ยงของท่านสูงเป็น ' + String(tt_risk) + ' เท่า';
-              } else if (tt_risk < 0.9) {
-                  this.sc1 = 'ซึ่งระดับความเสี่ยงของท่านต่ำเป็น ' + String(tt_risk) + ' เท่า';
-              } else {
-                  this.sc1 = 'ซึ่งใกล้เคียงกับระดับความเสี่ยง';
-              };
-              //Group of risk and suggestion
-              var sug = '';
-              if (tc[1] == 1) { sug = sug + ' เลิกสูบบุหรี่' };
-              if (tc[2] == 1) { sug = sug + ' รักษาระดับน้ำตาลในเลือดให้อยู่ในเกณฑ์ปกติ' };
-              if (tc[3] >= 140) { sug = sug + ' ควบคุมระดับความดันโลหิตให้ดี' };
-              if (tc[5] >= 220 || tc[6] >= 190) { sug = sug + ' เข้ารับการรักษาเพื่อลดโคเรสเตอรอลในเลือด' };
-              if ((tc[9] >= 38 && tc[4] == 1) || (tc[9] > 32 && tc[4] == 0)) { sug = sug + ' ลดน้ำหนักให้อยู่ในเกณฑ์ปกติ' };
-              if (sum_risk[1] < 0.1) {
-                  this.sc5 = "จัดอยู่ในกลุ่มเสี่ยงน้อย";
-                  this.sc4 = "เพื่อป้องกันการเกิดโรคหลอดเลือดในอนาคต ควรออกกำลังกายอย่างสม่ำเสมอ รับประทานผักผลไม้เป็นประจำ" + sug + " และตรวจสุขภาพประจำปี";
-              } else if (sum_risk[1] >= 0.1 && sum_risk[1] < 0.2) {
-                  this.sc5 = "จัดอยู่ในกลุ่มเสี่ยงปานกลาง";
-                  this.sc4 = "ควรออกกำลังกายอย่างสม่ำเสมอ รับประทานผักผลไม้เป็นประจำ" + sug + " และควรได้รับการตรวจร่างกายประจำปีอย่างสม่ำเสมอ";
-              } else if (sum_risk[1] >= 0.2 && sum_risk[1] <= 0.3) {
-                  this.sc5 = "จัดอยู่ในกลุ่มเสี่ยงสูง";
-                  this.sc4 = "ควรเข้ารับคำปรึกษาจากแพทย์ ในเบื้องต้นควรออกกำลังกายอย่างสม่ำเสมอ รับประทานผักผลไม้เป็นประจำ" + sug + " และเข้ารับการตรวจสุขภาพประจำปีอย่างสม่ำเสมอ";
-              } else if (sum_risk[1] > 0.3) {    //******* Update 2021-04-23
-                  this.sc5 = "จัดอยู่ในกลุ่มเสี่ยงสูงมาก";
-                  this.sc4 = "ควรเข้ารับคำปรึกษาจากแพทย์ ในเบื้องต้นควรออกกำลังกายอย่างสม่ำเสมอ รับประทานผักผลไม้เป็นประจำ" + sug + " และเข้ารับการตรวจสุขภาพประจำปีอย่างสม่ำเสมอ";
-              } else {
-                  this.sc5 = "ไม่พบความเสี่ยง";
-                  this.sc4 = "สามารถป้องกันการเกิดโรคหลอดเลือดหัวใจในอนาคตได้ด้วยการออกกำลังกายอย่างสม่ำเสมอ";
-              };
-            }
-
-            function TASCVDformular(age, smoke, dm, sbp, sex, tc, ldl, hdl, whr, wc) {
-            //FORMULAR
-            var full_score = 0;
-            var compare_score = 0;
-            var predicted_risk = 0;
-            var compare_risk = 0;
-            var compare_whr = 0.52667;
-            var compare_wc = 79;
-            var compare_sbp = 120;
-            var compare_hdl = 44;
-            var sur_root = 0.964588;
-            if (sex == 0) { compare_hdl = 49 };
-            if (sex == 1 && age > 60) { compare_sbp = 132 };
-            if (sex == 0 && age <= 60) { compare_sbp = 115 };
-            if (sex == 0 && age > 60) { compare_sbp = 130 };
-            if (sex == 1) {
-                compare_whr = 0.58125;      //****Update 2021-04-23
-                compare_wc = 93;
-            };
-            //****Update 2021-04-23 ยุบเหลือ 3 สูตร เท่านั้น
-            if (age > 1 && sbp >= 70) {
-                if (tc > 0) {       //Using Total cholesterol from blood test
-                    full_score = (0.08183 * age) + (0.39499 * sex) + (0.02084 * sbp) + (0.69974 * dm) + (0.00212 * tc) + (0.41916 * smoke);
-                    predicted_risk = 1 - (Math.pow(sur_root, Math.exp(full_score - 7.04423)));
-                    compare_score = (0.08183 * age) + (0.39499 * sex) + (0.02084 * compare_sbp) + (0.00212 * 200);
-                    compare_risk = 1 - (Math.pow(sur_root, Math.exp(compare_score - 7.04423)));
-                } else if (whr > 0) {
-                    full_score = (0.079 * age) + (0.128 * sex) + (0.019350987 * sbp) + (0.58454 * dm) + (3.512566 * whr) + (0.459 * smoke);
-                    predicted_risk = 1 - (Math.pow(sur_root, Math.exp(full_score - 7.712325)));     
-                    compare_score = (0.079 * age) + (0.128 * sex) + (0.019350987 * compare_sbp) + (3.512566 * compare_whr);
-                    compare_risk = 1 - (Math.pow(sur_root, Math.exp(compare_score - 7.712325)));  
-                } else if (wc > 0) {
-                    full_score = (0.08372 * age) + (0.05988 * sex) + (0.02034 * sbp) + (0.59953 * dm) + (0.01283 * wc) + (0.459 * smoke);
-                    predicted_risk = 1 - (Math.pow(sur_root, Math.exp(full_score - 7.31047)));
-                    compare_score = (0.08372 * age) + (0.05988 * sex) + (0.02034 * compare_sbp) + (0.01283 * compare_wc);
-                    compare_risk = 1 - (Math.pow(sur_root, Math.exp(compare_score - 7.31047)));
-                };        
-            };
-            //if (predicted_risk > 0.3) { predicted_risk = 0.3 };   //***Update เปลี่ยนเป็น หากมากกว่า 0.3 ให้แจ้งว่า มากกว่า 30% เท่านั้น เช่น 0.42 แจ้งว่า มากกว่า 30%
-            var risk = new Array(full_score, predicted_risk, compare_score, compare_risk);
-            return risk;
-        };
-        this.cvdBtnTran = 1;
-        
       },
       goToScreenList() {
         this.$router.push('/screen_list')
@@ -190,8 +106,9 @@
 </script>
 
 <template>
+
   <!-- nav bar -->
-  <div class="flex item-center navbar bg-white shadow rounded-3xl rounded-tl-none rounded-tr-none p-0 px-4 mb-5">
+  <div class="flex item-center navbar bg-white shadow rounded-3xl rounded-tl-none rounded-tr-none p-0 px-4 mb-4">
     <div class="navbar-start">
       <button class="text-primary" @click="goToScreenList()"><FaChevronLeft class="" /></button>
     </div>
@@ -204,144 +121,342 @@
   </div>
   <!-- nav bar -->
 
+  <div class="relative w-full ">
+    <div class="absolute items-center px-5 pt-7">
+      <div v-if="interpretation == 1">
+        <span class=""><strong class="font-bold text-slate-500">คำอธิบาย</strong> </span>
+        <ul class="list-disc ps-6 text-sm flex flex-col mt-1 gap-1">
+          <li>กรอกข้อมูลในช่องด้านล่างนี้ให้ครบถ้วน</li>
+          <li>ชั่งน้ำหนัก วัดส่วนสูง วัดรอบเอว และวัดความดันโลหิต</li>
+          <li>กรณีผู้รับบริการอายุมากกว่าหรือเท่ากับ 35 ปี ให้ตรวจระดับน้ำตาล โดยวิธีเจาะปลายนิ้ว</li>
+        </ul>
+      </div>
+      <div v-if="interpretation == 2">
+        <span class=""><strong class="font-bold text-slate-500">คำอธิบาย</strong> </span>
+        <ul class="list-disc ps-6 text-sm flex flex-col mt-1 gap-1">
+          <li>แปลผลดัชนีมวลกาย (BMI)</li>
+          <li>แปลผลเส้นรอบเอว (ประเมินภาวะอ้วน)</li>
+          <li>แปลผลความเสี่ยงการเกิดความดันโลหิตสูง</li>
+          <li>แปลผลความเสี่ยงการเกิดโรคเบาหวาน</li>
+        </ul>
+      </div>
+    </div>
+    <svg width="100%" height="100%" id="svg" viewBox="0 0 1440 690" xmlns="http://www.w3.org/2000/svg" class=""><path d="M 0,700 L 0,131 C 100.02820512820514,139.46153846153845 200.0564102564103,147.92307692307693 275,139 C 349.9435897435897,130.07692307692307 399.802564102564,103.76923076923077 474,100 C 548.197435897436,96.23076923076923 646.7333333333335,115.00000000000001 729,116 C 811.2666666666665,116.99999999999999 877.2641025641024,100.23076923076923 953,118 C 1028.7358974358976,135.76923076923077 1114.2102564102565,188.07692307692307 1197,196 C 1279.7897435897435,203.92307692307693 1359.8948717948717,167.46153846153845 1440,131 L 1440,700 L 0,700 Z" stroke="none" stroke-width="0" fill="#ffffff" fill-opacity="0.4" class="transition-all duration-300 ease-in-out delay-150 path-0"></path><path d="M 0,700 L 0,306 C 73.83589743589741,316.5051282051282 147.67179487179482,327.0102564102564 241,332 C 334.3282051282052,336.9897435897436 447.14871794871794,336.4641025641026 523,322 C 598.851282051282,307.5358974358974 637.7333333333333,279.1333333333333 714,267 C 790.2666666666667,254.86666666666665 903.9179487179488,259.00256410256407 986,267 C 1068.0820512820512,274.99743589743593 1118.5948717948718,286.8564102564103 1189,294 C 1259.4051282051282,301.1435897435897 1349.702564102564,303.57179487179485 1440,306 L 1440,700 L 0,700 Z" stroke="none" stroke-width="0" fill="#ffffff" fill-opacity="0.53" class="transition-all duration-300 ease-in-out delay-150 path-1"></path><path d="M 0,700 L 0,481 C 94.0205128205128,501.1435897435897 188.0410256410256,521.2871794871794 265,511 C 341.9589743589744,500.71282051282054 401.8564102564103,459.9948717948718 475,461 C 548.1435897435897,462.0051282051282 634.5333333333332,504.73333333333335 708,499 C 781.4666666666668,493.26666666666665 842.0102564102565,439.0717948717949 922,427 C 1001.9897435897435,414.9282051282051 1101.425641025641,444.97948717948714 1191,461 C 1280.574358974359,477.02051282051286 1360.2871794871794,479.01025641025643 1440,481 L 1440,700 L 0,700 Z" stroke="none" stroke-width="0" fill="#ffffff" fill-opacity="1" class="transition-all duration-300 ease-in-out delay-150 path-2"></path></svg>
+
+  </div>
+  
   <div class="p-0">
-    <div class="flex flex-col items-center shadow pt-5">
-      <div class="px-4 w-full">
+    <div class="bg-white flex flex-col shadow">
 
-        <div v-if="cvdBtnTran == 0" class="stats stats-vertical shadow w-full bg-white">
-          <div class="stat">
-            <div class="stat-title text-center font-bold text-slate-600">Thai CV risk score</div>
-          </div>
-          <!-- page 1 -->
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">อายุ</div>
-            <div class="mt-3">  
-              <div class="flex flex-row gap-5 items-center"> 
-                <input v-model="cvdSliderAgeValue" type="number" class="input input-bordered w-16 ps-5" />
-                <input v-model="cvdSliderAgeValue" type="range" min="15" max="70" class="range range-xs range-primary" />
-              </div>
+      <div v-if="interpretation == 1">
+          <div class="m-5 mx-4 mt-0 border-2 border-dashed rounded-2xl bg-white p-4"> 
+            <div class="flex flex-row text-slate-500">
+              <span class="font-bold w-1/4">ส่วนที่ 1 : </span><span class="w-3/4"> ประเมินดัชนีมวลกาย ชั่งน้ำหนัก  <br> วัดส่วนสูง และรอบเอว</span>  
             </div>
-          </div>
 
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">เพศ</div>
-            <div class="mt-3">
-              <div class="flex flex-row items-center gap-6">
+            <div class="w-full">
+              <div class="y-5">
 
-                <label class="swap swap-flip items-center">
-                  <input type="checkbox" v-model="cvdGender" class="toggle theme-controller toggle-primary" 
-                         true-value="ชาย"
-                         false-value="หญิง"/>
-                    <div class="swap-off ps-14 mb-1.5"><span class="text-2xl">👩🏻‍🦰</span> หญิง</div>
-                    <div class="swap-on ps-14 mb-1.5"><span class="text-2xl">👨🏻</span> ชาย</div>
-                </label>
+                <div class="flex flex-row gap-3">
+                  <div class="w-1/3 max-w-md">
+                    
+                    <div v-if="formWeightError == 1">
+                      <div class="label">
+                        <span class="label-text text-error">น้ำหนัก</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered input-error flex items-center gap-2 text-error">
+                        <input v-model="formWeight" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3 input-bordered input-error" />
+                        <span class="">กก.</span>
+                      </label>
+                    </div>
+                    
+                    <div v-else>
+                      <div class="label">
+                        <span class="label-text text-slate-500">น้ำหนัก</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered flex items-center gap-2">
+                        <input v-model="formWeight" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">กก.</span>
+                      </label>
+                    </div>
 
-              </div>
-            </div>
-          </div>
+                  </div>
 
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">สูบบุหรี่ ?</div>
-            <div class="mt-3">
-              <div class="flex flex-row items-center gap-6">
+                  <div class="w-1/3 max-w-md">
+
+                    <div v-if="formHightError == 1">
+                      <div class="label">
+                        <span class="label-text text-error">ส่วนสูง</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered input-error flex items-center gap-2 text-error">
+                        <input v-model="formHight" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">ซม.</span>
+                      </label>
+                    </div>
+
+                    <div v-else>
+                      <div class="label">
+                        <span class="label-text text-slate-500">ส่วนสูง</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered flex items-center gap-2">
+                        <input v-model="formHight" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">ซม.</span>
+                      </label>
+                    </div>
+
+                  </div>
+
+                  <div class="w-1/3 max-w-md">
+
+                    <div v-if="formWaistError == 1">
+                      <div class="label">
+                        <span class="label-text text-error">รอบเอว</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered input-error flex items-center gap-2 text-error">
+                        <input v-model="formWaist" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">ซม.</span>
+                      </label>
+                    </div>
+
+                    <div v-else>
+                      <div class="label">
+                        <span class="label-text text-slate-500">รอบเอว</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered flex items-center gap-2">
+                        <input v-model="formWaist" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">ซม.</span>
+                      </label>
+                    </div>
+
+                  </div>
+
+                </div>
                 
-                <label class="swap swap-flip items-center">
-                  <input type="checkbox" v-model="cvdSmoke" class="toggle theme-controller toggle-primary"    
-                         true-value="สูบบุหรี่"
-                         false-value="ไม่สูบบุหรี่"/>
-                    <div class="swap-off ps-14 mb-1.5"><span class="text-2xl">😊</span> ไม่สูบบุหรี่</div>
-                    <div class="swap-on ps-14 mb-1.5"><span class="text-2xl">😮‍💨</span> สูบบุหรี่</div>
-                </label>
-
               </div>
             </div>
           </div>
-          
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">เป็นโรคเบาหวาน ?</div>
-            <div class="mt-3">
-              <div class="flex flex-row items-center gap-6">
+          <div class="m-5 mx-4 mt-0 border-2 border-dashed rounded-2xl bg-white p-4"> 
+            <div class="flex flex-row text-slate-500">
+              <span class="font-bold w-1/4">ส่วนที่ 2 : </span><span class="w-3/4"> ตรวจวัดความดันโลหิต</span>  
+            </div>
+
+            <div class="w-full bg-white">
+              <div class="">
+
+                <div class="flex flex-row gap-3">
+                  <div class="w-2/4 max-w-md">
+                    
+                    <div v-if="formBpTopError == 1">
+                      <div class="label">
+                        <span class="label-text text-error"> ค่าความดันตัวบน</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered input-error text-error flex items-center gap-2">
+                        <input v-model="formBpTop" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">mmHg</span>
+                      </label>
+                    </div>
+
+                    <div v-else>
+                      <div class="label">
+                        <span class="label-text text-slate-500"> ค่าความดันตัวบน</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered flex items-center gap-2">
+                        <input v-model="formBpTop" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">mmHg</span>
+                      </label>
+                    </div>
+                    
+                  </div>
+
+                  <div class="w-2/4 max-w-md">
+
+                    <div v-if="formBpDownError == 1">
+                      <div class="label">
+                        <span class="label-text text-error">ค่าความดันตัวล่าง</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered input-error text-error flex items-center gap-2">
+                        <input v-model="formBpDown" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">mmHg</span>
+                      </label>
+                    </div>
+
+                    <div v-else>
+                      <div class="label">
+                        <span class="label-text text-slate-500">ค่าความดันตัวล่าง</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered flex items-center gap-2">
+                        <input v-model="formBpDown" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-1/3" />
+                        <span class="">mmHg</span>
+                      </label>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="inherAge >= 35" class="m-5 mx-4 mt-0 border-2 border-dashed rounded-2xl bg-white p-4"> 
+            <div class="flex flex-row text-slate-500">
+              <span class="font-bold"> ระดับน้ำตาลในเลือด</span>  
+            </div>
+
+            <div class="w-full bg-white">
+              <div class="">
+
+                <div class="flex flex-row gap-3">
+                  <div class="w-3/4 max-w-md">
+
+                    <div v-if="formBloodSugarError == 1">
+                      <div class="label">
+                        <span class="label-text text-error"> ระดับน้ำตาลโดยวิธีเจาะปลายนิ้ว</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered input-error text-error flex items-center gap-2">
+                        <input v-model="formBloodSugar" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-2/3" />
+                        <span class="">มก./ดล.</span>
+                      </label>
+                    </div>
+
+                    <div v-else>
+                      <div class="label">
+                        <span class="label-text text-slate-500"> ระดับน้ำตาลโดยวิธีเจาะปลายนิ้ว</span>
+                        <span class="label-text-alt text-error">*</span>
+                      </div>
+                      <label class="input input-bordered flex items-center gap-2">
+                        <input v-model="formBloodSugar" type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-2/3" />
+                        <span class="">มก./ดล.</span>
+                      </label>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="inherAge <= 34" class="m-5 mx-4 mt-0 border-2 border-dashed rounded-2xl bg-white p-4"> 
+            <div class="flex flex-row text-slate-500">
+              <span class="font-bold line-through"> ระดับน้ำตาลในเลือด</span>  
+            </div>
+
+            <div class="w-full bg-white">
+              <div class="">
+
+                <div class="flex flex-row gap-3">
+                  <div class="w-3/4 max-w-md">
+                    <div class="label">
+                      <span class="label-text line-through text-slate-500"> ระดับน้ำตาลโดยวิธีเจาะปลายนิ้ว</span>
+                      <span class="label-text-alt text-error"></span>
+                    </div>
+                    <label class="input input-bordered flex items-center gap-2">
+                      <input type="number" pattern="[0-9]*" inputmode="numeric" class="grow w-2/3" disabled />
+                      <span class="">มก./ดล.</span>
+                    </label>
+                  </div>
                 
-                <label class="swap swap-flip items-center">
-                  <input type="checkbox" v-model="cvdDm" class="toggle theme-controller toggle-primary"
-                         true-value="เป็นโรคเบาหวาน"
-                         false-value="ไม่เป็นโรคเบาหวาน"/>
-                    <div class="swap-off ps-14 mb-1.5"><span class="text-2xl">😎</span> ไม่เป็นโรคเบาหวาน</div>
-                    <div class="swap-on ps-14 mb-1.5"><span class="text-2xl">🥹</span> เป็นโรคเบาหวาน</div>
-                </label>
-
+                </div>
               </div>
             </div>
           </div>
-          
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">ความดันตัวบน</div>
-            <div class="mt-3">  
-              <div class="flex flex-row gap-5 items-center"> 
-                <input v-model="cvdSliderBpTopValue" type="number" class="input input-bordered w-16" />
-                <input v-model="cvdSliderBpTopValue" type="range" min="70" max="220"class="range range-xs range-primary" />
-              </div>
-            </div>
+      </div>
+
+      <div v-else>
+        <div class="m-5 mx-4 mt-0 border-2 border-dashed rounded-2xl bg-white p-4"> 
+          <div class="flex flex-row text-slate-600">
+            <span class="font-bold text-center w-full text-lg">แปลผลการประเมินสุขภาพ</span>
           </div>
 
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">วัดรอบเอว (นิ้ว)</div>
-            <div class="mt-3">  
-              <div class="flex flex-row gap-5 items-center"> 
-                <input v-model="cvdSliderWaistValue" type="number" class="input input-bordered w-16 ps-5" />
-                <input v-model="cvdSliderWaistValue" type="range" min="20" max="60"class="range range-xs range-primary" />
+          <div class="w-full">
+            <div class="y-5">
+              <hr class="my-4">
+              <div class="flex flex-col gap-1">
+                <span class="font-bold text-slate-500 mx-3">แปลผลดัชนีมวลกาย (BMI) </span>
+                <div class="flex flex-row justify-between px-3">
+                  <span class="text-slate-500 text-nowrap"> คะแนน BMI ที่ได้ </span><span class="text-slate-500 text-nowrap overflow-hidden px-3"> ---------------------------- </span><span class="text-slate-500 text-nowrap ps-3"> {{  inherBMI }} คะแนน</span>
+                </div>
+                <ul class="list-disc ps-9 flex flex-col mt-1 gap-1">
+                  <li v-if="inherBMI < 18.5"><span class="text-slate-500"> อยู่ในระดับ : 😅 ต่ำกว่าเกณฑ์</span></li>
+                  <li v-else-if="(inherBMI >= 18.5) && inherBMI <= 22.9"><span class="text-slate-500"> อยู่ในระดับ : 😀 ปกติสมส่วน</span></li>
+                  <li v-else-if="(inherBMI >= 23) && inherBMI <= 24.9"><span class="text-slate-500"> อยู่ในระดับ : 😕 น้ำหนักเกิน</span></li>
+                  <li v-else-if="(inherBMI >= 25) && inherBMI <= 29.9"><span class="text-slate-500"> อยู่ในระดับ : 😣 อ้วนระดับ 1</span></li>
+                  <li v-else-if="inherBMI > 30"><span class="text-slate-500"> อยู่ในระดับ : 😖 อ้วนระดับ 2</span></li>
+                </ul>
               </div>
+
+              <hr class="my-4">
+              <div class="flex flex-col gap-1">
+                <span class="font-bold text-slate-500 mx-3">แปลผลเส้นรอบเอว (ประเมินภาวะอ้วน) </span>
+                <div class="flex flex-row justify-between px-3">
+                  <span class="text-slate-500 text-nowrap"> ขนาดเส้นรอบเอว </span><span class="text-slate-500 text-nowrap overflow-hidden px-3"> ------------------------------------------- </span><span class="text-slate-500 text-nowrap ps-3"> {{ formWaist }} ซม. </span>
+                </div>
+                <ul class="list-disc ps-9 flex flex-col mt-1 gap-1">
+                  <div v-if="inherGender == 'ชาย'">
+                    <li v-if="formWaist >= 90"><span class="text-slate-500"> อยู่ในระดับ : 🥹 อ้วน </span></li>
+                    <li v-else><span class="text-slate-500"> อยู่ในระดับ : 😀 ปกติ </span></li>
+                  </div>
+                  <div v-if="inherGender == 'หญิง'">
+                    <li v-if="formWaist >= 80"><span class="text-slate-500"> อยู่ในระดับ : 🥹 อ้วน </span></li>
+                    <li v-else><span class="text-slate-500"> อยู่ในระดับ : 😀 ปกติ </span></li>
+                  </div>
+                </ul>
+              </div>
+
+              <hr class="my-4">
+              <div class="flex flex-col gap-1">
+                <span class="font-bold text-slate-500 mx-3">แปลผลความเสี่ยงการเกิดความดันโลหิตสูง </span>
+                <div class="flex flex-row justify-between px-3">
+                  <span class="text-slate-500 text-nowrap"> ค่าความดันโลหิต </span><span class="text-slate-500 text-nowrap overflow-hidden px-3"> ---------------------------- </span><span class="text-slate-500 text-nowrap ps-3"> {{ formBpTop }} / {{ formBpDown }} mmHg. </span>
+                </div>
+                <ul class="list-disc ps-9 flex flex-col mt-1 gap-1">
+                  <li v-if="(formBpTop < 120) || (formBpDown < 80)"><span class="text-slate-500"> อยู่ในระดับ : 😅 ต่ำกว่าเกณฑ์ </span></li>
+
+                  <li v-else-if="((formBpTop >= 140) && (formBpDown < 90))"><span class="text-slate-500"> อยู่ในระดับ : 😨 สูงกว่าเกณฑ์</span></li>
+                  <li v-else-if="(formBpTop >= 180) || (formBpDown >= 110)"><span class="text-slate-500"> อยู่ในระดับ : 😨 สูงกว่าเกณฑ์</span></li>
+                  
+                  <li v-else-if="((formBpTop >= 160) && (formBpTop <= 179)) || ((formBpDown >= 100) && (formBpDown <= 109))"><span class="text-slate-500"> อยู่ในระดับ : 😨 สูงกว่าเกณฑ์</span></li>
+                  <li v-else-if="((formBpTop >= 140) && (formBpTop <= 159)) || ((formBpDown >= 90) && (formBpDown <= 99))"><span class="text-slate-500"> อยู่ในระดับ : 😨 สูงกว่าเกณฑ์</span></li>
+                  <li v-else-if="((formBpTop >= 130) && (formBpTop <= 139)) || ((formBpDown >= 85) && (formBpDown <= 89))"><span class="text-slate-500"> อยู่ในระดับ : 😨 สูงกว่าเกณฑ์</span></li>
+                  
+                  <li v-else-if="((formBpTop >= 120) && (formBpTop <= 129)) || ((formBpDown >= 80) && (formBpDown <= 84))"><span class="text-slate-500"> อยู่ในระดับ : 😀 ปกติ </span></li>
+                </ul>
+              </div>
+
+              <div v-if="formBloodSugar != ''" class="flex flex-col gap-1">
+                <hr class="my-4">
+                <span class="font-bold text-slate-500 mx-3">แปลผลความเสี่ยงการเกิดโรคเบาหวาน </span>
+                <div class="flex flex-row justify-between px-3">
+                  <span class="text-slate-500 text-nowrap"> ระดับน้ำตาลในเลือด </span><span class="text-slate-500 text-nowrap overflow-hidden px-3"> ---------------------------- </span><span class="text-slate-500 text-nowrap ps-3"> {{ formBloodSugar }} มก./ดล. </span>
+                </div>
+                <ul class="list-disc ps-9 flex flex-col mt-1 gap-1">
+                  <li v-if="formBloodSugar > 126"><span class="text-slate-500"> อยู่ในระดับ : 😰 เป็นโรคเบาหวาน </span></li>
+                  <li v-else-if="(formBloodSugar >= 100) && (formBloodSugar <= 120)"><span class="text-slate-500"> อยู่ในระดับ : 😟 เสี่ยงต่อการเป็นโรคเบาหวาน </span></li>
+                  <li v-else-if="formBloodSugar < 100"><span class="text-slate-500"> อยู่ในระดับ : 😀 ปกติ </span></li>
+                </ul>
+              </div>
+
+
             </div>
           </div>
-
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">ส่วนสูง (ซม.)</div>
-            <div class="mt-3">  
-              <div class="flex flex-row gap-5 items-center"> 
-                <input v-model="cvdSliderHightValue" type="number" class="input input-bordered w-16" />
-                <input v-model="cvdSliderHightValue" type="range" min="120" max="210"class="range range-xs range-primary" />
-              </div>
-            </div>
-          </div>
-
         </div>
+      </div>
 
-        <div v-if="cvdBtnTran == 1" class="stats stats-vertical shadow w-full bg-white">
-        <!-- page 2 -->
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">ผลการประเมิน</div>
-          </div>
-          <div class="stat">
-            <div class="stat-title text-slate-600 text-wrap">
-                <p class="font-normal">ความเสี่ยงต่อการเกิดโรคเส้นเลือดหัวใจและหลอดเลือดในระยะเวลา 10 ปีของท่าน <strong id="sc2"> {{ sc2 }} %</strong><br> 
-                   <strong id="sc5">" {{ sc5 }} "</strong><br><br>
-                   <span id="sc1"> {{ sc1 }} </span>ของคนไทยเพศเดียวกัน อายุเท่ากัน และปราศจากปัจจัยเสี่ยง <br>
-                   <br>
-                   <strong>ข้อแนะนำเบื้องต้น</strong>  <br>
-                   <p id="sc4"> {{ sc4 }} </p>
-                </p>
-            </div>
-          </div>
-        </div>
+      <div v-if="interpretation == 1"class="w-full my-6 px-4">
+        <button class="btn btn-lg btn-outline btn-secondary w-full rounded-full shadow-lg" @click="btnInterpretation()"><FaRegPaste class="mt-0.5 "/>แปลผล</button>
+      </div>
 
-        <div v-if="cvdBtnTran == 1" class="stats stats-vertical shadow w-full bg-white mt-5">
-        <!-- page 2 -->
-          <div class="stat">
-            <div class="stat-title font-bold text-slate-600">หมายเหตุ (Disclaimer)</div>
-          </div>
-          <div class="stat">
-            <div class="stat-title text-slate-600 text-wrap">
-                <p>ผลลัพธ์ที่ได้ เป็นการประเมินความเสี่ยงต่อการเจ็บป่วยหรือเสียชีวิตจากโรคเส้นเลือดหัวใจตีบตันและโรคเส้นเลือดสมองตีบตันในระยะเวลา 10 ปีข้างหน้า <br><br>
-                   ผลการประเมินและคำแนะนำที่ได้รับจากโปรแกรมนี้ไม่สามารถใช้แทนการตัดสินใจของแพทย์ได้ การตรวจรักษาเพิ่มเติมหรือการให้ยารักษาขึ้นอยู่กับดุลยพินิจของแพทย์และการปรึกษากันระหว่างแพทย์และตัวท่าน <br><br>
-                   ผลการประเมินนี้ห้ามนำไปใช้อ้างอิงในการค้า เช่น การทำประกันชีวิต และไม่สามารถใช้กับผู้ป่วยโรคลิ้นหัวใจหรือโรคหัวใจเต้นผิดจังหวะได้ <br>
-                </p>
-            </div>
-          </div>
-        </div>
-
-        <button v-if="cvdBtnTran == 0" class="btn btn-secondary btn-lg btn-outline w-full my-10" @click="resultsCVD()"> แปลผล</button>
-        <button v-if="cvdBtnTran == 1"class="btn btn-secondary btn-lg btn-outline w-full my-10" @click="cvdBtnTran = 0"> ย้อนกลับ</button>
-
+      <div v-else="interpretation == 2"class="w-full my-6 px-4">
+        <div v-if="inherAge < 35" class=" mt-20"></div>
+        <div v-else></div>
+          <button class="btn btn-lg btn-outline btn-secondary w-full rounded-full shadow-lg" @click="interpretation = 1"><FaRegPaste class="mt-0.5 "/>ถัดไป</button>
       </div>
 
     </div>
